@@ -7,18 +7,18 @@
         <el-input
           v-model="query.queryText"
           clearable
-          placeholder="模糊查询"
+          placeholder="模糊搜索"
           style="width: 185px;"
           class="filter-item"
           @keyup.enter.native="crud.toQuery"
         />
-        <el-select v-model="query.member" placeholder="是否会员" clearable size="small" class="filter-item" style="width: 110px" @change="toQuery">
+        <el-select v-model="query.member" placeholder="是否会员" clearable size="small" class="filter-item" style="width: 110px" @change="crud.toQuery">
           <el-option v-for="item in optionsMemberQuery" :key="item.key" :label="item.label" :value="item.value" />
         </el-select>
-        <el-select v-model="query.activeQuery" placeholder="活跃状态" clearable size="small" class="filter-item" style="width: 170px" @change="toQuery">
+        <el-select v-model="query.activeQuery" placeholder="活跃状态" clearable size="small" class="filter-item" style="width: 170px" @change="crud.toQuery">
           <el-option v-for="item in optionsActiveQuery" :key="item.key" :label="item.label" :value="item.value" />
         </el-select>
-        <el-select v-model="query.memberEfficient" placeholder="会员到期时间" clearable size="small" class="filter-item" style="width: 130px" @change="toQuery">
+        <el-select v-model="query.memberEfficient" placeholder="会员到期时间" clearable size="small" class="filter-item" style="width: 130px" @change="crud.toQuery">
           <el-option v-for="item in optionsMaturityQuery" :key="item.key" :label="item.label" :value="item.value" />
         </el-select>
         <rrOperation :crud="crud" />
@@ -47,7 +47,8 @@
             <el-input v-model="form.abbreviationName" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="logo路径">
-            <el-input v-model="form.logoPath" style="width: 370px;" />
+            <!--            <el-input v-model="form.logoPath" style="width: 370px;" />-->
+            <img :src="form.logoPath" title="点击上传头像" class="avatar">
           </el-form-item>
           <el-form-item label="城市">
             <el-input v-model="form.city" style="width: 370px;" />
@@ -76,7 +77,7 @@
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button type="text" @click="crud.cancelCU">取消</el-button>
-          <!--          <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>-->
+          <el-button :loading="crud.status.cu === 2" type="primary" @click="crud.submitCU">确认</el-button>
         </div>
       </el-dialog>
       <!--表格渲染-->
@@ -90,7 +91,11 @@
       >
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" width="55" label="序号" />
-        <el-table-column prop="companyName" label="企业名称" />
+        <el-table-column prop="companyName" label="企业名称" :show-overflow-tooltip=true>
+          <template slot-scope="scope">
+            <el-button size="mini" type="text" @click="infoDetails(scope.row)">{{ scope.row.companyName }}</el-button>
+          </template>
+        </el-table-column>
         <el-table-column prop="companyPhone" label="企业电话" />
         <el-table-column align="center" label="员工数">
           <template slot-scope="scope">
@@ -99,7 +104,7 @@
               trigger="click"
               @show="findListEmployee(scope.row)"
             >
-              <el-table :data="gridData">
+              <el-table :data="gridDataList">
                 <el-table-column width="50" property="id" label="序号" />
                 <el-table-column width="75" property="name" label="姓名" />
                 <el-table-column width="50" label="性别">
@@ -126,7 +131,7 @@
               trigger="click"
               @show="findListJob(scope.row,null,'Finish')"
             >
-              <el-table :data="gridData">
+              <el-table :data="gridDataList">
                 <el-table-column width="50" property="id" label="序号" />
                 <el-table-column width="200" property="title" label="标题" />
                 <el-table-column width="100" property="sortTitle" label="简标" />
@@ -143,7 +148,7 @@
               trigger="click"
               @show="findListJob(scope.row,'Finish','')"
             >
-              <el-table :data="gridData">
+              <el-table :data="gridDataList">
                 <el-table-column width="50" property="id" label="序号" />
                 <el-table-column width="200" property="title" label="标题" />
                 <el-table-column width="100" property="sortTitle" label="简标" />
@@ -186,7 +191,57 @@
             />
           </template>
         </el-table-column>
+        <!--          <template slot-scope="scope">-->
+        <!--            <udOperation-->
+        <!--              :data="scope.row"-->
+        <!--              :permission="permission"-->
+        <!--            />-->
+        <!--          </template>-->
       </el-table>
+      <!--弹窗渲染-->
+      <el-dialog :visible.sync="dialog" title="详情" append-to-body width="500px" top="30px" class="spec-dialog">
+        <el-form ref="form" size="small" label-width="80px">
+          <el-form-item label="序号">
+            <el-input v-model="gridDataDetails.id" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="企业名称">
+            <el-input v-model="gridDataDetails.companyName" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="省">
+            <el-input v-model="gridDataDetails.province" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="门店简称">
+            <el-input v-model="gridDataDetails.abbreviationName" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="logo路径">
+            <img :src="gridDataDetails.logoPath" width="50" height="50" title="点击上传头像" class="avatar">
+          </el-form-item>
+          <el-form-item label="城市">
+            <el-input v-model="gridDataDetails.city" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="地区">
+            <el-input v-model="gridDataDetails.area" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="地址">
+            <el-input v-model="gridDataDetails.address" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="企业电话">
+            <el-input v-model="gridDataDetails.companyPhone" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="联系人">
+            <el-input v-model="gridDataDetails.contact" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="营业执照 ">
+            <el-input v-model="gridDataDetails.businessPhotos" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="备注">
+            <el-input v-model="gridDataDetails.remark" disabled style="width: 370px;" />
+          </el-form-item>
+          <el-form-item label="官网地址">
+            <el-input v-model="gridDataDetails.website" disabled style="width: 370px;" />
+          </el-form-item>
+        </el-form>
+      </el-dialog>
       <!--分页组件-->
       <pagination />
     </div>
@@ -254,8 +309,10 @@ export default {
         edit: ['admin', 'adminCompanyView:edit'],
         del: ['admin', 'adminCompanyView:del']
       },
+      dialog: false,
       rules: {},
-      gridData: {},
+      gridDataList: [],
+      gridDataDetails: {},
       optionsMemberQuery: [{
         value: '1',
         label: '会员'
@@ -293,18 +350,22 @@ export default {
     }
   },
   methods: {
+    infoDetails(data) {
+      this.dialog = true
+      this.gridDataDetails = data
+    },
     // 弹框
     findListEmployee(row) {
       listEmployee(row.id).then((response) => {
         console.log(response)
-        this.gridData = response.content
+        this.gridDataList = response.content
       })
     },
     findListJob(row, jobStatus, jobStatusNot) {
       // this.gridData.attchTable()
       listJob(row, jobStatus, jobStatusNot).then((response) => {
         console.log(response)
-        this.gridData = response.content
+        this.gridDataList = response.content
       })
     },
     // handleUpdate(row) {
@@ -363,6 +424,10 @@ export default {
 }
 </script>
 
-<style scoped>
-
+<style>
+.spec-dialog .el-dialog__body {
+  padding: 4px 30px;
+  /*overflow-y: auto;*/
+  height: calc(100vh - 140px);
+}
 </style>

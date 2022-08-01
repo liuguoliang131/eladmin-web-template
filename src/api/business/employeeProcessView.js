@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function add(data) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/employeeProcessView/',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/employeeProcessView/',
     method: 'delete',
     data: ids
   })
@@ -18,16 +18,16 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/employeeProcessView/',
     method: 'put',
     data
   })
 }
 
-export function editHistory(data) {
+export function findProcessView(data) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
-    method: 'put',
+    url: 'api/business/employeeProcessView/?jobId=' + data.jobId + '&processId=' + data.id,
+    method: 'get',
     data
   })
 }

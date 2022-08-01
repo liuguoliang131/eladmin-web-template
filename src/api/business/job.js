@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function add(data) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/job/',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/job/',
     method: 'delete',
     data: ids
   })
@@ -18,15 +18,7 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/business/companyMembershipHistory/',
-    method: 'put',
-    data
-  })
-}
-
-export function editHistory(data) {
-  return request({
-    url: 'api/business/companyMembershipHistory/',
+    url: 'api/business/job/',
     method: 'put',
     data
   })
